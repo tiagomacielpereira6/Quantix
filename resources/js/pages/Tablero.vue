@@ -172,7 +172,7 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import AppLayout from '../layouts/AppLayout.vue';
+import AppLayout from '../Layouts/AppLayout.vue';
 
 // Props del controlador
 defineProps({

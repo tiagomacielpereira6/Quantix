@@ -163,7 +163,7 @@
 <script setup>
 import { Link, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import AppLayout from '../../layouts/AppLayout.vue';
+import AppLayout from '../../Layouts/AppLayout.vue';
 
 const props = defineProps({
   clientes: {

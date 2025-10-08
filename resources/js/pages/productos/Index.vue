@@ -185,7 +185,7 @@
 <script setup>
 import { Link, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
-import AppLayout from '../../layouts/AppLayout.vue';
+import AppLayout from '../../Layouts/AppLayout.vue';
 import DropdownMenu from '../../components/DropdownMenu.vue';
 import DropdownItem from '../../components/DropdownItem.vue';
 import DropdownSeparator from '../../components/DropdownSeparator.vue';

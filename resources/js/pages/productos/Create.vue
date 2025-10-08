@@ -152,7 +152,7 @@
 
 <script setup>
 import { Link, useForm } from '@inertiajs/vue3';
-import AppLayout from '../../layouts/AppLayout.vue';
+import AppLayout from '../../Layouts/AppLayout.vue';
 
 const form = useForm({
   nombre: '',

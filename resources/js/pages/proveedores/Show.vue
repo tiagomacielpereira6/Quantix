@@ -188,7 +188,7 @@
 
 <script setup>
 import { Link, router } from '@inertiajs/vue3';
-import AppLayout from '../../layouts/AppLayout.vue';
+import AppLayout from '../../Layouts/AppLayout.vue';
 
 const props = defineProps({
   proveedor: Object,

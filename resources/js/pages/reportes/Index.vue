@@ -349,7 +349,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { router } from '@inertiajs/vue3';
-import AppLayout from '../../layouts/AppLayout.vue';
+import AppLayout from '../../Layouts/AppLayout.vue';
 
 const props = defineProps({
   periodo: {

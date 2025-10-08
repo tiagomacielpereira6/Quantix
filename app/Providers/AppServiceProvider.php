@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Prefetch de Vite
+        Vite::prefetch(concurrency: 3);
+
+        // Compartir info de usuario logueado con Inertia
+        Inertia::share([
+            'auth' => function () {
+                return [
+                    'user' => Auth::user(), // null si no hay usuario
+                ];
+            },
+        ]);
     }
 }

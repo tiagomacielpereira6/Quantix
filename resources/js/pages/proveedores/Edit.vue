@@ -160,7 +160,7 @@
 <script setup>
 import { reactive, ref } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
-import AppLayout from '../../layouts/AppLayout.vue';
+import AppLayout from '../../Layouts/AppLayout.vue';
 
 const props = defineProps({
   proveedor: Object

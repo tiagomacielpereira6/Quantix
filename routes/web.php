@@ -1,59 +1,30 @@
-<?php
-
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TableroController;
-use App\Http\Controllers\ProductoController;
-use App\Http\Controllers\PedidoController;
-use App\Http\Controllers\ClienteController;
-use App\Http\Controllers\ProveedorController;
-use App\Http\Controllers\ReporteController;
-use App\Http\Controllers\TicketController;
 use Inertia\Inertia;
 
-// Ruta principal - redirige al tablero
-Route::get('/', function () {
-    return redirect()->route('tablero');
+// Redirige raíz al login
+Route::get('/', fn() => redirect()->route('login'));
+
+// Login
+Route::controller(LoginController::class)->group(function () {
+    Route::get('/login', 'showLoginForm')->name('login');
+    Route::post('/login', 'login')->name('login.attempt');
+    Route::post('/logout', 'logout')->name('logout');
 });
 
-// Tablero principal
-Route::get('/tablero', [TableroController::class, 'index'])->name('tablero');
+// Registro
+Route::controller(RegisterController::class)->group(function () {
+    Route::get('/register', 'showRegistrationForm')->name('register');
+    Route::post('/register', 'register')->name('register.attempt');
+});
 
-// Rutas de productos
-Route::resource('productos', ProductoController::class);
-Route::patch('/productos/{producto}/toggle-activo', [ProductoController::class, 'toggleActivo'])->name('productos.toggle-activo');
+// Home (protegido)
+Route::middleware('auth')->group(function () {
+    Route::get('/home', fn() => Inertia::render('Home'))->name('home');
 
-// Rutas de pedidos
-Route::resource('pedidos', PedidoController::class);
-
-// Rutas de clientes
-Route::resource('clientes', ClienteController::class);
-
-// Rutas de proveedores
-Route::resource('proveedores', ProveedorController::class);
-
-// Rutas de reportes
-Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
-Route::post('/reportes/filtrar', [ReporteController::class, 'filtrar'])->name('reportes.filtrar');
-
-// Rutas para generación de reportes PDF
-Route::get('/reportes/ventas/pdf', [ReporteController::class, 'generarReporteVentas'])->name('reportes.ventas.pdf');
-Route::get('/reportes/inventario/pdf', [ReporteController::class, 'generarReporteInventario'])->name('reportes.inventario.pdf');
-Route::get('/reportes/clientes/pdf', [ReporteController::class, 'generarReporteClientes'])->name('reportes.clientes.pdf');
-
-// Rutas para tickets PDF
-Route::get('/pedidos/{pedido}/ticket', [TicketController::class, 'generarTicketPedido'])->name('pedidos.ticket');
-Route::get('/pedidos/{pedido}/recibo', [TicketController::class, 'generarReciboPago'])->name('pedidos.recibo');
-Route::get('/pedidos/{pedido}/cocina', [TicketController::class, 'generarTicketCocina'])->name('pedidos.cocina');
-Route::post('/pedidos/{pedido}/imprimir', [TicketController::class, 'imprimirTicketPedido'])->name('pedidos.imprimir');
-
-Route::get('/clientes', function () {
-    return Inertia::render('clientes/Index');
-})->name('clientes.index');
-
-// Dashboard original (comentado por ahora)
-// Route::get('dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
-
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+    Route::get('/profile', [ProfileController::class,'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class,'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class,'destroy'])->name('profile.destroy');
+});
