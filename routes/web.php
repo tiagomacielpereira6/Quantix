@@ -1,30 +1,59 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// Redirige raíz al login
-Route::get('/', fn() => redirect()->route('login'));
+/*
+|--------------------------------------------------------------------------
+| Rutas de Autenticación Personalizada
+|--------------------------------------------------------------------------
+| Estas rutas manejan la lógica de Login y Registro.
+*/
 
-// Login
-Route::controller(LoginController::class)->group(function () {
-    Route::get('/login', 'showLoginForm')->name('login');
-    Route::post('/login', 'login')->name('login.attempt');
-    Route::post('/logout', 'logout')->name('logout');
+Route::middleware('guest')->group(function () {
+    // Login
+    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+
+    // Registro
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
 });
 
-// Registro
-Route::controller(RegisterController::class)->group(function () {
-    Route::get('/register', 'showRegistrationForm')->name('register');
-    Route::post('/register', 'register')->name('register.attempt');
-});
+/*
+|--------------------------------------------------------------------------
+| Rutas de la Aplicación (Requieren Autenticación)
+|--------------------------------------------------------------------------
+| Todas estas rutas utilizan el middleware 'auth'.
+*/
 
-// Home (protegido)
 Route::middleware('auth')->group(function () {
-    Route::get('/home', fn() => Inertia::render('Home'))->name('home');
+    // Página principal (tablero o dashboard)
+    Route::get('/home', function () {
+        return Inertia::render('tablero'); // Coincide con tablero.vue
+    })->name('home');
 
-    Route::get('/profile', [ProfileController::class,'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class,'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class,'destroy'])->name('profile.destroy');
+    // Perfil del usuario
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Cerrar Sesión
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Ruta raíz
+|--------------------------------------------------------------------------
+| Redirige según si el usuario está autenticado o no.
+*/
+Route::get('/', function () {
+    return auth()->check()
+        ? redirect()->route('home')
+        : redirect()->route('login');
+});
+
