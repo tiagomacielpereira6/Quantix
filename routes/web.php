@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 /*
@@ -41,6 +42,36 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::get(
+        '/pedidos/create',
+        function(){
+            return Inertia::render('productos/Create');
+        }
+    );
+
+
+Route::get(
+        '/productos',
+        function(){
+            return Inertia::render('productos/Index');
+            
+        }
+    );
+
+  
+Route::get(
+        '/reportes',
+        function(){
+            return Inertia::render('reportes/Index');
+            
+        }
+    );
+
+
+
+
+
+
     // Cerrar Sesión
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
@@ -52,7 +83,7 @@ Route::middleware('auth')->group(function () {
 | Redirige según si el usuario está autenticado o no.
 */
 Route::get('/', function () {
-    return auth()->check()
+    return Auth::check()
         ? redirect()->route('home')
         : redirect()->route('login');
 });
