@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Carbon\Carbon;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReporteController extends Controller
 {
@@ -234,8 +234,34 @@ class ReporteController extends Controller
             'cliente_top_gasto' => $clientes->first()->pedidos_sum_total ?? 0,
             'promedio_gasto' => $clientes->where('pedidos_count', '>', 0)->avg('pedidos_sum_total') ?? 0
         ];
-        
-        $pdf = PDF::loadView('pdf.reporte-clientes', compact('clientes', 'estadisticas'));
+
+        $clientes_vip = $clientes->take(ceil($clientes->count() * 0.1));
+        $todos_clientes = $clientes;
+        $clientes_frecuentes = $clientes->filter(function ($cliente) {
+            return $cliente->pedidos_count >= 5;
+        });
+
+        $clientes_inactivos = $clientes->filter(function ($cliente) {
+            return $cliente->pedidos_count === 0 || $cliente->ultimo_pedido < now()->subDays(30);
+        });
+
+        $segmentacion = $clientes->groupBy(function ($cliente) {
+            if ($cliente->pedidos_count >= 10) {
+                return 'VIP';
+            } elseif ($cliente->pedidos_count >= 5) {
+                return 'Frecuente';
+            } else {
+                return 'Ocasional';
+            }
+        })->map(function ($grupo, $categoria) {
+            return [
+                'categoria' => $categoria,
+                'cantidad' => $grupo->count(),
+                'ingresos' => $grupo->sum('pedidos_sum_total'),
+            ];
+        });
+
+        $pdf = PDF::loadView('pdf.reporte-clientes', compact('clientes', 'estadisticas', 'clientes_vip', 'todos_clientes', 'clientes_frecuentes', 'clientes_inactivos', 'segmentacion'));
         $pdf->setPaper('A4', 'portrait');
         
         return $pdf->download('reporte-clientes-' . now()->format('Y-m-d') . '.pdf');

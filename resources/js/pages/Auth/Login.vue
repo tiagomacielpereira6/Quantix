@@ -127,7 +127,7 @@
         </p>
       </div>
     </div>
-
+    
     <!-- Decoración de fondo -->
     <div class="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
       <div class="absolute top-1/4 left-1/4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>

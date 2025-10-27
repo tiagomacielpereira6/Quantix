@@ -233,22 +233,22 @@
     <div class="estadisticas-grid">
         <div class="stat-card primary">
             <div class="stat-icon">👨‍👩‍👧‍👦</div>
-            <div class="stat-value">{{ $clientes['resumen']['total_clientes'] }}</div>
+            <div class="stat-value">{{ $estadisticas['total_clientes'] }}</div>
             <div class="stat-label">Total Clientes</div>
         </div>
         <div class="stat-card success">
             <div class="stat-icon">🛒</div>
-            <div class="stat-value">{{ $clientes['resumen']['clientes_activos'] }}</div>
+            <div class="stat-value">{{ $estadisticas['clientes_activos'] }}</div>
             <div class="stat-label">Clientes Activos</div>
         </div>
         <div class="stat-card info">
             <div class="stat-icon">📈</div>
-            <div class="stat-value">{{ $clientes['resumen']['clientes_nuevos_mes'] }}</div>
+            <div class="stat-value">{{ $estadisticas['clientes_nuevos_mes'] ?? 'N/A' }}</div>
             <div class="stat-label">Nuevos Este Mes</div>
         </div>
         <div class="stat-card warning">
             <div class="stat-icon">💰</div>
-            <div class="stat-value">${{ number_format($clientes['resumen']['gasto_promedio'], 2) }}</div>
+            <div class="stat-value">${{ number_format($estadisticas['promedio_gasto'], 2) }}</div>
             <div class="stat-label">Gasto Promedio</div>
         </div>
     </div>
@@ -259,19 +259,19 @@
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
             <div>
                 <div style="font-size: 18px; font-weight: bold; color: #1976d2;">
-                    ${{ number_format($clientes['resumen']['ingresos_totales'], 2) }}
+                    ${{ number_format($estadisticas['ingresos_totales'] ?? 0, 2) }}
                 </div>
                 <div style="font-size: 12px; color: #666;">Ingresos Totales</div>
             </div>
             <div>
                 <div style="font-size: 18px; font-weight: bold; color: #1976d2;">
-                    {{ $clientes['resumen']['pedidos_totales'] }}
+                    {{ $estadisticas['pedidos_totales'] ?? 'N/A' }}
                 </div>
                 <div style="font-size: 12px; color: #666;">Pedidos Totales</div>
             </div>
             <div>
                 <div style="font-size: 18px; font-weight: bold; color: #1976d2;">
-                    {{ number_format($clientes['resumen']['ticket_promedio'], 2) }}
+                    {{ number_format($estadisticas['ticket_promedio'] ?? 0, 2) }}
                 </div>
                 <div style="font-size: 12px; color: #666;">Ticket Promedio</div>
             </div>
@@ -279,7 +279,7 @@
     </div>
 
     <!-- Clientes VIP -->
-    @if(!$clientes['clientes_vip']->isEmpty())
+    @if(!$clientes_vip->isEmpty())
     <div class="section">
         <div class="section-title">👑 Clientes VIP (Top 10%)</div>
         <table class="table">
@@ -295,7 +295,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($clientes['clientes_vip'] as $index => $cliente)
+                @foreach($clientes_vip as $index => $cliente)
                 <tr class="cliente-vip">
                     <td class="text-center">
                         @if($index == 0) 👑
@@ -338,7 +338,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($clientes['todos_clientes'] as $cliente)
+                @foreach($todos_clientes as $cliente)
                 <tr class="@if($cliente->total_pedidos >= 10) cliente-frecuente @elseif($cliente->total_pedidos >= 5) cliente-regular @else cliente-nuevo @endif">
                     <td><strong>{{ $cliente->nombre }}</strong></td>
                     <td>{{ $cliente->telefono ?? 'N/A' }}</td>
@@ -361,7 +361,7 @@
                     </td>
                 </tr>
                 @endforeach
-                @if($clientes['todos_clientes']->isEmpty())
+                @if($todos_clientes->isEmpty())
                 <tr>
                     <td colspan="7" class="text-center" style="color: #666; font-style: italic;">
                         No hay clientes registrados en el sistema
@@ -376,7 +376,7 @@
     <div class="page-break"></div>
 
     <!-- Clientes Frecuentes -->
-    @if(!$clientes['clientes_frecuentes']->isEmpty())
+    @if(!$clientes_frecuentes->isEmpty())
     <div class="section">
         <div class="section-title">⭐ Clientes Frecuentes (5+ Pedidos)</div>
         <table class="table">
@@ -391,7 +391,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($clientes['clientes_frecuentes'] as $cliente)
+                @foreach($clientes_frecuentes as $cliente)
                 <tr class="cliente-frecuente">
                     <td><strong>{{ $cliente->nombre }}</strong></td>
                     <td>
@@ -431,7 +431,7 @@
     @endif
 
     <!-- Clientes Inactivos -->
-    @if(!$clientes['clientes_inactivos']->isEmpty())
+    @if(!$clientes_inactivos->isEmpty())
     <div class="section">
         <div class="section-title">😴 Clientes Inactivos (30+ días sin pedidos)</div>
         <table class="table">
@@ -446,7 +446,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($clientes['clientes_inactivos'] as $cliente)
+                @foreach($clientes_inactivos as $cliente)
                 <tr style="background: #fff2f2;">
                     <td><strong>{{ $cliente->nombre }}</strong></td>
                     <td>{{ $cliente->telefono ?? 'N/A' }}</td>
@@ -487,30 +487,30 @@
             </thead>
             <tbody>
                 @php
-                    $totalClientes = $clientes['segmentacion']->sum('cantidad');
-                    $totalIngresos = $clientes['segmentacion']->sum('ingresos');
+                    $totalClientes = $segmentacion->sum('cantidad');
+                    $totalIngresos = $segmentacion->sum('ingresos');
                 @endphp
-                @foreach($clientes['segmentacion'] as $segmento)
+                @foreach($segmentacion as $segmento)
                 <tr>
                     <td>
-                        <strong>{{ $segmento->categoria }}</strong>
-                        @if($segmento->categoria == 'VIP')
+                        <strong>{{ $segmento['categoria'] }}</strong>
+                        @if($segmento['categoria'] == 'VIP')
                             👑
-                        @elseif($segmento->categoria == 'Frecuente')
+                        @elseif($segmento['categoria'] == 'Frecuente')
                             ⭐
-                        @elseif($segmento->categoria == 'Regular')
+                        @elseif($segmento['categoria'] == 'Regular')
                             👥
                         @else
                             🆕
                         @endif
                     </td>
-                    <td class="text-center">{{ $segmento->cantidad }}</td>
+                    <td class="text-center">{{ $segmento['cantidad'] }}</td>
                     <td class="text-center">
-                        {{ $totalClientes > 0 ? number_format(($segmento->cantidad / $totalClientes) * 100, 1) : 0 }}%
+                        {{ $totalClientes > 0 ? number_format(($segmento['cantidad'] / $totalClientes) * 100, 1) : 0 }}%
                     </td>
-                    <td class="text-right">${{ number_format($segmento->ingresos, 2) }}</td>
+                    <td class="text-right">${{ number_format($segmento['ingresos'], 2) }}</td>
                     <td class="text-right">
-                        ${{ $segmento->cantidad > 0 ? number_format($segmento->ingresos / $segmento->cantidad, 2) : '0.00' }}
+                        ${{ $segmento['cantidad'] > 0 ? number_format($segmento['ingresos'] / $segmento['cantidad'], 2) : '0.00' }}
                     </td>
                 </tr>
                 @endforeach
