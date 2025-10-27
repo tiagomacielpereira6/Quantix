@@ -122,8 +122,8 @@
         <p class="text-xs text-gray-500">
           <span class="font-semibold">Quantix</span> - Gestión Inteligente de Ventas
         </p>
-        <p class="text-xs text-gray-400 mt-1">
-          Desarrollado por Leandro - Proyecto de Graduación 2025
+        <p class="text-xs text-gray-400 mt-1"> Desarrollado por NovaSix 
+          
         </p>
       </div>
     </div>

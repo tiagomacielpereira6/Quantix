@@ -224,39 +224,38 @@
     </div>
 
     <!-- Resumen General -->
-    <div class="resumen-grid">
-        <div class="stat-card info">
-            <div class="stat-icon">🏪</div>
-            <div class="stat-value">{{ $inventario['resumen']['total_productos'] }}</div>
-            <div class="stat-label">Total Productos</div>
-        </div>
-        <div class="stat-card success">
-            <div class="stat-icon">✅</div>
-            <div class="stat-value">{{ $inventario['resumen']['productos_activos'] }}</div>
-            <div class="stat-label">Productos Activos</div>
-        </div>
-        <div class="stat-card warning">
-            <div class="stat-icon">⚠️</div>
-            <div class="stat-value">{{ $inventario['resumen']['stock_bajo'] }}</div>
-            <div class="stat-label">Stock Bajo</div>
-        </div>
-        <div class="stat-card danger">
-            <div class="stat-icon">❌</div>
-            <div class="stat-value">{{ $inventario['resumen']['sin_stock'] }}</div>
-            <div class="stat-label">Sin Stock</div>
-        </div>
+<div class="resumen-grid">
+    <div class="stat-card info">
+        <div class="stat-icon">🏪</div>
+        <div class="stat-value">{{ $estadisticas['total_productos'] ?? 0 }}</div>
+        <div class="stat-label">Total Productos</div>
     </div>
 
-    <!-- Valor Total del Inventario -->
-    <div class="valor-inventario">
-        <h3 style="color: #1976d2; margin-bottom: 10px;">💰 Valor Total del Inventario</h3>
-        <div style="font-size: 28px; font-weight: bold; color: #1976d2;">
-            ${{ number_format($inventario['resumen']['valor_total'], 2) }}
-        </div>
-        <div style="font-size: 12px; color: #666; margin-top: 5px;">
-            Calculado basado en precio de venta × stock disponible
-        </div>
+    <div class="stat-card success">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ $inventario['productos']->where('activo', true)->count() }}</div>
+        <div class="stat-label">Productos Activos</div>
     </div>
+
+    <div class="stat-card warning">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-value">{{ $estadisticas['productos_stock_bajo'] ?? 0 }}</div>
+        <div class="stat-label">Stock Bajo</div>
+    </div>
+
+    <div class="stat-card danger">
+        <div class="stat-icon">❌</div>
+        <div class="stat-value">{{ $estadisticas['productos_agotados'] ?? 0 }}</div>
+        <div class="stat-label">Agotados</div>
+    </div>
+
+    <div class="stat-card primary">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value">${{ number_format($estadisticas['valor_inventario'] ?? 0, 2, ',', '.') }}</div>
+        <div class="stat-label">Valor Total del Inventario</div>
+    </div>
+</div>
+
 
     <!-- Alertas de Stock -->
     @if($inventario['resumen']['stock_bajo'] > 0 || $inventario['resumen']['sin_stock'] > 0)

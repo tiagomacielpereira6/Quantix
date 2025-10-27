@@ -176,24 +176,45 @@ class ReporteController extends Controller
     /**
      * Generar reporte de inventario en PDF
      */
-    public function generarReporteInventario()
-    {
-        $productos = Producto::where('activo', true)
-                           ->orderBy('stock', 'asc')
-                           ->get();
+   public function generarReporteInventario()
+{
+    $productos = Producto::where('activo', true)
+        ->orderBy('stock', 'asc')
+        ->get();
 
-        $estadisticas = [
-            'total_productos' => $productos->count(),
-            'productos_stock_bajo' => $productos->where('stock', '<=', 10)->count(),
-            'productos_agotados' => $productos->where('stock', 0)->count(),
-            'valor_inventario' => $productos->sum(function($p) { return $p->stock * $p->precio; })
+    $estadisticas = [
+        'total_productos' => $productos->count(),
+        'productos_stock_bajo' => $productos->where('stock', '<=', 10)->count(),
+        'productos_agotados' => $productos->where('stock', 0)->count(),
+        'valor_inventario' => $productos->sum(fn($p) => $p->stock * $p->precio),
+    ];
+
+    $porCategoria = $productos->groupBy('categoria')->map(function ($items, $categoria) {
+        return (object) [
+            'categoria' => $categoria,
+            'total_productos' => $items->count(),
+            'stock_total' => $items->sum('stock'),
+            'valor_categoria' => $items->sum(fn($p) => $p->stock * $p->precio),
+            'precio_promedio' => $items->avg('precio'),
         ];
-        
-        $pdf = PDF::loadView('pdf.reporte-inventario', compact('productos', 'estadisticas'));
-        $pdf->setPaper('A4', 'portrait');
-        
-        return $pdf->download('reporte-inventario-' . now()->format('Y-m-d') . '.pdf');
-    }
+    });
+
+    $inventario = [
+        'resumen' => [
+            'stock_bajo' => $estadisticas['productos_stock_bajo'],
+            'sin_stock' => $estadisticas['productos_agotados'],
+        ],
+        'productos' => $productos,
+        'por_categoria' => $porCategoria,
+    ];
+
+    $pdf = Pdf::loadView('pdf.reporte-inventario', [
+        'inventario' => $inventario,
+        'estadisticas' => $estadisticas,
+    ])->setPaper('A4', 'portrait');
+
+    return $pdf->download('reporte-inventario-' . now()->format('Y-m-d') . '.pdf');
+}
 
     /**
      * Generar reporte de clientes en PDF
